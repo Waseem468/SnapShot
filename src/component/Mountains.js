@@ -6,7 +6,7 @@ import FetchData from "./FetchData";
 function Mountains(){
   return(
     <div>
-      <Header/>
+      <Header />
       <FetchData SearchKeyword={'Mountains'}/>
     </div>
   )

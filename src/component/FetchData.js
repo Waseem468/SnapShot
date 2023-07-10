@@ -1,33 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-const FLICKR_API_KEY = '77ef5dbbaec2ab5bcf386338ad08283f';
-
+const UNSPLASH_KEY = 'M8HWosVy1d7jnIpJFhrU0gmbcFq0AcpbnusSx3hKzGY';
 const FetchData = (props) => {
   const [photos, setPhotos] = useState([]);
+  const [viewPhoto, setViewPhoto] = useState(null);
+
   useEffect(() => {
     const getdata = async () => {
-      const response = await axios.get('https://api.flickr.com/services/rest', {
+      axios.get('https://api.unsplash.com/photos/random', {
         params: {
-          method: 'flickr.photos.search',
-          api_key: FLICKR_API_KEY,
-          text: props.SearchKeyword,
-          format: 'json',
-          nojsoncallback: 1,
-          per_page: 20,
+          count: 20,
+          client_id: UNSPLASH_KEY,
+          query: props.SearchKeyword,
+
         },
+      }).then((response) => {
+        const Result = response.data;
+        setPhotos(Result);
+      }).catch((error) => {
+        console.error('Error fetching photos:', error);
       });
-      setPhotos(response.data.photos.photo)
     };
 
     getdata();
   }, [props.SearchKeyword]);
 
+  const handleImageClick = (ImageUrl) => {
+    setViewPhoto(ImageUrl)
+  }
+  const handleCloseImage = () => {
+    setViewPhoto(null)
+  }
+
   return (
-    <div className='img'>
-      {photos.map(item => (
-        <img key={item.id} src={`https://live.staticflickr.com/${item.server}/${item.id}_${item.secret}.jpg`} alt={item.title} />
-      ))}
-    </div>
+    <>
+      <div className='img'>
+        {photos.map(item => (
+          <img key={item.id} src={item.urls.regular} alt={item.alt_description}
+            onClick={() => handleImageClick(item.urls.full)} />
+        ))}
+      </div>
+      {viewPhoto && (
+        <div className="view-max">
+          <div className="view-max-content">
+            <span className="close" onClick={handleCloseImage}>&times;</span>
+            <img src={viewPhoto} alt="Selected" />
+          </div>
+        </div>
+      )}
+    </>
+
   );
 };
 
